@@ -3,6 +3,15 @@ from models.form_data import FormData
 from typing import Annotated
 from models.item import Item
 
+from models.task import Task
+from supabase import create_client, Client
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+supabase: Client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_PUBLISHABLE_KEY"))
+
 
 app = FastAPI()
 
@@ -70,3 +79,15 @@ def create_item(
 
       return Response(content=message, status_code=201)
 
+@app.post("/tasks/")
+def create_task(task: Task):
+  data = supabase.table("task").insert({
+      "title": task.title,
+      "description": task.description
+  }).execute()
+  return data.data
+
+@app.get("/tasks/")
+def get_tasks():
+   data = supabase.table("task").select("*").execute()
+   return data.data
