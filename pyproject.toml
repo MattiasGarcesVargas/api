@@ -11,3 +11,6 @@ dependencies = [
 
 [tool.fastapi]
 entrypoint = "main:app"
+
+[tool.setuptools.packages.find]
+exclude = ["node_modules*"]
