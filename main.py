@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form, Response
+from models.form_data import FormData
+from typing import Annotated
 from models.item import Item
 
 
@@ -34,6 +36,7 @@ def create_item(item: Item):
       fake_items_db.append(item_dict)
    return item_dict
 
+
 @app.put("/items/{item_name}/query")
 def update_item_with_query(item_name: str, item: Item, q: str | None = None):
    for i, fake_item in enumerate(fake_items_db):
@@ -45,5 +48,25 @@ def update_item_with_query(item_name: str, item: Item, q: str | None = None):
          return response
    return {"error": "Item not found"}
 
+@app.post("/items_form/")
+def create_item(
+      item_name: Annotated[str, Form()],
+      description: Annotated[str, Form()],
+      price: Annotated[float, Form()],
+      tax: Annotated[float, Form()]
+):
+      form_data = FormData(
+            item_name=item_name,
+            description=description,
+            price=price,
+            tax=tax,
+      )
 
+      message = (
+            f"Item '{form_data.item_name}' created successfully with description "
+            f"'{form_data.description}', price {form_data.price}, and tax {form_data.tax}."
+      )
+      fake_items_db.append({"item_name": item_name})
+
+      return Response(content=message, status_code=201)
 
